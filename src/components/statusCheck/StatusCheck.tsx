@@ -15,7 +15,7 @@ export const StatusCheck = () => {
   const { data, loading, error } = useGetNodeInfoQuery({
     fetchPolicy: 'network-only',
     variables: { auth },
-    pollInterval: 10000,
+    // pollInterval: 10000,
   });
 
   useEffect(() => {

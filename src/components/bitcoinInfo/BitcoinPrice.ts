@@ -7,7 +7,7 @@ export const BitcoinPrice = () => {
   const { loading, data, stopPolling } = useGetBitcoinPriceQuery({
     fetchPolicy: 'network-only',
     onError: () => setPrices({ type: 'error' }),
-    pollInterval: 60000,
+    // pollInterval: 60000,
   });
 
   useEffect(() => {

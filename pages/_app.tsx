@@ -7,8 +7,7 @@ import { ModalProvider, BaseModalBackground } from 'styled-react-modal';
 import { GlobalStyles } from '../src/styles/GlobalStyle';
 import { Header } from '../src/layouts/header/Header';
 import { Footer } from '../src/layouts/footer/Footer';
-import { ApolloProvider } from '@apollo/react-hooks';
-import withApollo from '../config/apolloClient';
+import { withApollo } from '../config/apollo';
 import { BitcoinFees } from '../src/components/bitcoinInfo/BitcoinFees';
 import { BitcoinPrice } from '../src/components/bitcoinInfo/BitcoinPrice';
 import { GridWrapper } from '../src/components/gridWrapper/GridWrapper';
@@ -67,16 +66,14 @@ class MyApp extends App<any> {
         <Head>
           <title>ThunderHub - Lightning Node Manager</title>
         </Head>
-        <ApolloProvider client={apollo}>
-          <ContextProvider>
-            <Wrapper>
-              <Component {...pageProps} />
-            </Wrapper>
-          </ContextProvider>
-        </ApolloProvider>
+        <ContextProvider>
+          <Wrapper>
+            <Component {...pageProps} />
+          </Wrapper>
+        </ContextProvider>
       </>
     );
   }
 }
 
-export default withApollo(MyApp);
+export default withApollo()(MyApp);

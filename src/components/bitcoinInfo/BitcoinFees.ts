@@ -10,7 +10,7 @@ export const BitcoinFees = () => {
       setInfo({ type: 'error' });
       stopPolling();
     },
-    pollInterval: 60000,
+    // pollInterval: 60000,
   });
 
   useEffect(() => {

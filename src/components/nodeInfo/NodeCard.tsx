@@ -34,7 +34,7 @@ export const NodeCard = ({ account, accountId }: NodeCardProps) => {
   const { data, loading, error } = useGetNodeInfoQuery({
     skip: !inView || !auth,
     variables: { auth },
-    pollInterval: 10000,
+    // pollInterval: 10000,
   });
 
   if (error) {

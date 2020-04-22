@@ -1,27 +1,18 @@
-import { ApolloClient, InMemoryCache, HttpLink } from 'apollo-boost';
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
 import fetch from 'isomorphic-unfetch';
-import withApollo from 'next-with-apollo';
-import getConfig from 'next/config';
 
-const { publicRuntimeConfig } = getConfig();
-const { apiUrl } = publicRuntimeConfig;
-
-const link = new HttpLink({
-  uri: apiUrl,
-  credentials: 'same-origin',
-  fetch,
-});
-
-// Export a HOC from next-with-apollo
-// Docs: https://www.npmjs.com/package/next-with-apollo
-export default withApollo(
-  // You can get headers and ctx (context) from the callback params
-  // e.g. ({ headers, ctx, initialState })
-  ({ initialState }) =>
-    new ApolloClient({
-      link,
-      cache: new InMemoryCache()
-        //  rehydrate the cache using the initial data passed from the server:
-        .restore(initialState || {}),
-    })
-);
+export default function createApolloClient(initialState, ctx) {
+  // The `ctx` (NextPageContext) will only be present on the server.
+  // use it to extract auth headers (ctx.req) or similar.
+  return new ApolloClient({
+    ssrMode: Boolean(ctx),
+    link: new HttpLink({
+      uri: 'http://localhost:3000/api/v1', // Server URL (must be absolute)
+      credentials: 'same-origin', // Additional fetch() options like `credentials` or `headers`
+      fetch,
+    }),
+    cache: new InMemoryCache().restore(initialState),
+  });
+}
