@@ -10,8 +10,8 @@ jobs:
       - run:
           command: |
             sudo docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASS
-            sudo docker build --pull -t $DOCKERHUB_REPO:$CIRCLE_TAG-amd64 -f Dockerfile .
-            sudo docker push $DOCKERHUB_REPO:$CIRCLE_TAG-amd64
+            sudo docker build --pull -t $DOCKERHUB_REPO:test-amd64 -f Dockerfile .
+            sudo docker push $DOCKERHUB_REPO:test-amd64
   arm32v7:
     machine:
       enabled: true
@@ -22,8 +22,8 @@ jobs:
             sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
             #
             sudo docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASS
-            sudo docker build --pull -t $DOCKERHUB_REPO:$CIRCLE_TAG-arm32v7 -f arm32v7.Dockerfile .
-            sudo docker push $DOCKERHUB_REPO:$CIRCLE_TAG-arm32v7
+            sudo docker build --pull -t $DOCKERHUB_REPO:test-arm32v7 -f arm32v7.Dockerfile .
+            sudo docker push $DOCKERHUB_REPO:test-arm32v7
   arm64v8:
     machine:
       enabled: true
@@ -34,8 +34,8 @@ jobs:
             sudo docker run --rm --privileged multiarch/qemu-user-static:register --reset
             #
             sudo docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASS
-            sudo docker build --pull -t $DOCKERHUB_REPO:$CIRCLE_TAG-arm64v8 -f arm64v8.Dockerfile .
-            sudo docker push $DOCKERHUB_REPO:$CIRCLE_TAG-arm64v8
+            sudo docker build --pull -t $DOCKERHUB_REPO:test-arm64v8 -f arm64v8.Dockerfile .
+            sudo docker push $DOCKERHUB_REPO:test-arm64v8
   multiarch:
     machine:
       enabled: true
@@ -49,11 +49,11 @@ jobs:
             #
             sudo docker login --username=$DOCKERHUB_USER --password=$DOCKERHUB_PASS
             #
-            sudo docker manifest create --amend $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:$CIRCLE_TAG-amd64 $DOCKERHUB_REPO:$CIRCLE_TAG-arm32v7 $DOCKERHUB_REPO:$CIRCLE_TAG-arm64v8
-            sudo docker manifest annotate $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:$CIRCLE_TAG-amd64 --os linux --arch amd64
-            sudo docker manifest annotate $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:$CIRCLE_TAG-arm32v7 --os linux --arch arm --variant v7
-            sudo docker manifest annotate $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:$CIRCLE_TAG-arm64v8 --os linux --arch arm64 --variant v8
-            sudo docker manifest push $DOCKERHUB_REPO:$CIRCLE_TAG -p
+            sudo docker manifest create --amend $DOCKERHUB_REPO:test $DOCKERHUB_REPO:test-amd64 $DOCKERHUB_REPO:test-arm32v7 $DOCKERHUB_REPO:test-arm64v8
+            sudo docker manifest annotate $DOCKERHUB_REPO:test $DOCKERHUB_REPO:test-amd64 --os linux --arch amd64
+            sudo docker manifest annotate $DOCKERHUB_REPO:test $DOCKERHUB_REPO:test-arm32v7 --os linux --arch arm --variant v7
+            sudo docker manifest annotate $DOCKERHUB_REPO:test $DOCKERHUB_REPO:test-arm64v8 --os linux --arch arm64 --variant v8
+            sudo docker manifest push $DOCKERHUB_REPO:test -p
 
 workflows:
   version: 2
