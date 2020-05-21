@@ -4,7 +4,7 @@
 FROM arm32v7/node:12.16-alpine as build
 
 # Install dependencies neccesary for node-gyp on node alpine
-RUN apk add --no-cache bash
+# RUN apk add --no-cache bash
 
 CMD ["/bin/bash"]
 RUN ls -l /bin
