@@ -4,6 +4,7 @@
 FROM arm32v7/node:13.14-alpine as build
 
 # Install dependencies neccesary for node-gyp on node alpine
+RUN apk add --no-cache bash
 RUN apk add --update --no-cache python make g++
 
 # Install app dependencies
