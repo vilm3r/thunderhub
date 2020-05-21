@@ -1,7 +1,7 @@
 # ----------------
 # Install Dependencies
 # ----------------
-FROM node:13.14-alpine as build
+FROM node:12.16-alpine as build
 
 # Install dependencies neccesary for node-gyp on node alpine
 RUN apk add --update --no-cache python make g++
@@ -16,7 +16,7 @@ RUN npm install -D cross-env typescript @types/react @next/bundle-analyzer
 # ---------------
 # Build App
 # ---------------
-FROM node:13.14-alpine
+FROM node:12.16-alpine
 
 WORKDIR /app
 
