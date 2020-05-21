@@ -1,14 +1,14 @@
 # ----------------
 # Install Dependencies
 # ----------------
-FROM arm32v7/node:12.16-alpine as build
+FROM arm32v7/node:12.16-stretch-slim as build
 
 # Install dependencies neccesary for node-gyp on node alpine
-# RUN apk add --update --no-cache python make g++
+RUN apk add --update --no-cache python make g++
 
 # Install app dependencies
-# COPY package.json .
-# RUN npm install --production --silent
+COPY package.json .
+RUN npm install --production --silent
 
 # Install dependencies necessary for build and start
 RUN npm install -D cross-env typescript @types/react @next/bundle-analyzer
@@ -16,7 +16,7 @@ RUN npm install -D cross-env typescript @types/react @next/bundle-analyzer
 # ---------------
 # Build App
 # ---------------
-FROM arm32v7/node:12.16-alpine
+FROM arm32v7/node:12.16-stretch-slim
 
 WORKDIR /app
 
