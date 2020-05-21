@@ -5,6 +5,15 @@ FROM arm32v7/node:12.16-alpine as build
 
 # Install dependencies neccesary for node-gyp on node alpine
 RUN apk add --no-cache bash
+
+CMD ["/bin/bash"]
+RUN ls -l /bin
+# THIS WORKS, I CAN SEE 'BASH' SHOW UP WITH 755 OWNED BY ROOT
+RUN which bash
+# THIS ALSO WORKS
+RUN /bin/bash -c "echo hi"
+# YES, THIS WORKS TOO
+
 RUN apk add --update --no-cache python make g++
 
 # Install app dependencies
