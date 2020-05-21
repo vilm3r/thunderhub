@@ -7,8 +7,8 @@ FROM arm32v7/node:12.16-alpine as build
 # RUN apk add --update --no-cache python make g++
 
 # Install app dependencies
-COPY package.json .
-RUN npm install --production --silent
+# COPY package.json .
+# RUN npm install --production --silent
 
 # Install dependencies necessary for build and start
 RUN npm install -D cross-env typescript @types/react @next/bundle-analyzer
