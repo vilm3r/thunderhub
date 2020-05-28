@@ -4,6 +4,7 @@ import { onChain } from './onchain';
 import { peers } from './peers';
 import { chat } from './chat';
 import { authTokenMutations } from './authToken';
+import { tbaseMutations } from './tbase';
 
 export const mutation = {
   ...channels,
@@ -12,4 +13,5 @@ export const mutation = {
   ...peers,
   ...chat,
   ...authTokenMutations,
+  ...tbaseMutations,
 };

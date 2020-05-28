@@ -27,4 +27,5 @@ export type ContextType = {
   sso: SSOType;
   accounts: AccountType[];
   res: ServerResponse;
+  baseClient: any;
 };

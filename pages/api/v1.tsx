@@ -15,6 +15,7 @@ import { ContextType } from 'api/types/apiTypes';
 import AES from 'crypto-js/aes';
 import CryptoJS from 'crypto-js';
 import cookie from 'cookie';
+import { GraphQLClient } from 'graphql-request';
 
 const { publicRuntimeConfig, serverRuntimeConfig } = getConfig();
 const { apiBaseUrl, nodeEnv } = publicRuntimeConfig;
@@ -36,6 +37,9 @@ const ssoCert = readFile(lnCertPath);
 const accountConfig = getAccounts(accountConfigPath);
 
 readCookie(cookiePath);
+
+const tBaseUrl = 'http://localhost:4000/api/v1';
+const baseClient = new GraphQLClient(tBaseUrl);
 
 const apolloServer = new ApolloServer({
   schema: thunderHubSchema,
@@ -81,6 +85,7 @@ const apolloServer = new ApolloServer({
       sso: { macaroon: ssoMacaroon, cert: ssoCert, host: lnServerUrl || null },
       accounts: accountConfig,
       res,
+      baseClient,
     };
 
     return context;
