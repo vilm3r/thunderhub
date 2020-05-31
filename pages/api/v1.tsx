@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import crypto from 'crypto';
 import { ApolloServer } from 'apollo-server-micro';
 import { thunderHubSchema } from 'server/schemas';
