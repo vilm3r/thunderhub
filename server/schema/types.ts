@@ -155,5 +155,12 @@ export const mutationTypes = gql`
     ): Int
     logout(type: String!): Boolean
     createMacaroon(auth: authType!, permissions: permissionsType!): String
+    lockUtxo(auth: authType!, id: String!, vout: Int!): LockUtxoType
+    unlockUtxo(
+      auth: authType!
+      lockId: String!
+      id: String!
+      vout: Int!
+    ): Boolean
   }
 `;

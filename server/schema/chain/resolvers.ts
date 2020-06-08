@@ -5,16 +5,15 @@ import {
   getUtxos,
   sendToChainAddress,
   createChainAddress,
+  lockUtxo,
+  unlockUtxo,
 } from 'ln-service';
 import { ContextType } from 'server/types/apiTypes';
-import { logger } from 'server/helpers/logger';
 import { requestLimiter } from 'server/helpers/rateLimiter';
-import {
-  getAuthLnd,
-  getErrorMsg,
-  getCorrectAuth,
-} from 'server/helpers/helpers';
+import { getLnd } from 'server/helpers/helpers';
 import { sortBy } from 'underscore';
+import { to } from 'server/helpers/async';
+import { LockUtxoParams, UnlockUtxoParams } from './types';
 
 interface ChainBalanceProps {
   chain_balance: number;
@@ -33,18 +32,14 @@ export const chainResolvers = {
     ) => {
       await requestLimiter(context.ip, 'chainBalance');
 
-      const auth = getCorrectAuth(params.auth, context);
-      const lnd = getAuthLnd(auth);
+      const lnd = getLnd(params.auth, context);
 
-      try {
-        const value: ChainBalanceProps = await getBalance({
+      const { chain_balance }: ChainBalanceProps = await to(
+        getBalance({
           lnd,
-        });
-        return value.chain_balance;
-      } catch (error) {
-        logger.error('Error getting chain balance: %o', error);
-        throw new Error(getErrorMsg(error));
-      }
+        })
+      );
+      return chain_balance;
     },
     getPendingChainBalance: async (
       _: undefined,
@@ -53,18 +48,14 @@ export const chainResolvers = {
     ) => {
       await requestLimiter(context.ip, 'pendingChainBalance');
 
-      const auth = getCorrectAuth(params.auth, context);
-      const lnd = getAuthLnd(auth);
+      const lnd = getLnd(params.auth, context);
 
-      try {
-        const pendingValue: PendingChainBalanceProps = await getPending({
+      const { pending_chain_balance }: PendingChainBalanceProps = await to(
+        getPending({
           lnd,
-        });
-        return pendingValue.pending_chain_balance;
-      } catch (error) {
-        logger.error('Error getting pending chain balance: %o', error);
-        throw new Error(getErrorMsg(error));
-      }
+        })
+      );
+      return pending_chain_balance;
     },
     getChainTransactions: async (
       _: undefined,
@@ -73,67 +64,52 @@ export const chainResolvers = {
     ) => {
       await requestLimiter(context.ip, 'chainTransactions');
 
-      const auth = getCorrectAuth(params.auth, context);
-      const lnd = getAuthLnd(auth);
+      const lnd = getLnd(params.auth, context);
 
-      try {
-        const transactionList = await getChainTransactions({
+      const transactionList = await to(
+        getChainTransactions({
           lnd,
-        });
+        })
+      );
 
-        const transactions = sortBy(
-          transactionList.transactions,
-          'created_at'
-        ).reverse();
-        return transactions;
-      } catch (error) {
-        logger.error('Error getting chain transactions: %o', error);
-        throw new Error(getErrorMsg(error));
-      }
+      const transactions = sortBy(
+        transactionList.transactions,
+        'created_at'
+      ).reverse();
+      return transactions;
     },
     getUtxos: async (_: undefined, params: any, context: ContextType) => {
       await requestLimiter(context.ip, 'getUtxos');
 
-      const auth = getCorrectAuth(params.auth, context);
-      const lnd = getAuthLnd(auth);
+      const lnd = getLnd(params.auth, context);
 
-      try {
-        const { utxos } = await getUtxos({ lnd });
+      const { utxos } = await to(getUtxos({ lnd }));
 
-        return utxos;
-      } catch (error) {
-        logger.error('Error getting utxos: %o', error);
-        throw new Error(getErrorMsg(error));
-      }
+      return utxos;
     },
   },
   Mutation: {
     createAddress: async (_: undefined, params: any, context: ContextType) => {
       await requestLimiter(context.ip, 'getAddress');
 
-      const auth = getCorrectAuth(params.auth, context);
-      const lnd = getAuthLnd(auth);
+      const lnd = getLnd(params.auth, context);
 
       const format = params.nested ? 'np2wpkh' : 'p2wpkh';
 
-      try {
-        const address = await createChainAddress({
+      const { address } = await to(
+        createChainAddress({
           lnd,
           is_unused: true,
           format,
-        });
+        })
+      );
 
-        return address.address;
-      } catch (error) {
-        logger.error('Error creating address: %o', error);
-        throw new Error(getErrorMsg(error));
-      }
+      return address;
     },
     sendToAddress: async (_: undefined, params: any, context: ContextType) => {
       await requestLimiter(context.ip, 'sendToAddress');
 
-      const auth = getCorrectAuth(params.auth, context);
-      const lnd = getAuthLnd(auth);
+      const lnd = getLnd(params.auth, context);
 
       const props = params.fee
         ? { fee_tokens_per_vbyte: params.fee }
@@ -143,26 +119,58 @@ export const chainResolvers = {
 
       const sendAll = params.sendAll ? { is_send_all: true } : {};
 
-      try {
-        const send = await sendToChainAddress({
+      const send = await to(
+        sendToChainAddress({
           lnd,
           address: params.address,
           ...(params.tokens && { tokens: params.tokens }),
           ...props,
           ...sendAll,
-        });
+        })
+      );
 
-        return {
-          confirmationCount: send.confirmation_count,
-          id: send.id,
-          isConfirmed: send.is_confirmed,
-          isOutgoing: send.is_outgoing,
-          ...(send.tokens && { tokens: send.tokens }),
-        };
-      } catch (error) {
-        logger.error('Error sending to chain address: %o', error);
-        throw new Error(getErrorMsg(error));
-      }
+      return {
+        confirmationCount: send.confirmation_count,
+        id: send.id,
+        isConfirmed: send.is_confirmed,
+        isOutgoing: send.is_outgoing,
+        ...(send.tokens && { tokens: send.tokens }),
+      };
+    },
+    lockUtxo: async (
+      _: undefined,
+      params: LockUtxoParams,
+      context: ContextType
+    ) => {
+      await requestLimiter(context.ip, 'lockUtxo');
+
+      const { auth, id, vout } = params;
+      const lnd = getLnd(auth, context);
+
+      return await to(
+        lockUtxo({ lnd, transaction_id: id, transaction_vout: vout })
+      );
+    },
+    unlockUtxo: async (
+      _: undefined,
+      params: UnlockUtxoParams,
+      context: ContextType
+    ) => {
+      await requestLimiter(context.ip, 'unlockUtxo');
+
+      const { auth, id, vout, lockId } = params;
+      const lnd = getLnd(auth, context);
+
+      await to(
+        unlockUtxo({
+          lnd,
+          id: lockId,
+          transaction_id: id,
+          transaction_vout: vout,
+        })
+      );
+
+      return true;
     },
   },
 };

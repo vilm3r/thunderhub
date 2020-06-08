@@ -1,4 +1,18 @@
 import { gql } from 'apollo-server-micro';
+import { AuthType } from 'src/context/AccountContext';
+
+export type LockUtxoParams = {
+  auth: AuthType;
+  id: String;
+  vout: Number;
+};
+
+export type UnlockUtxoParams = {
+  auth: AuthType;
+  lockId: String;
+  id: String;
+  vout: Number;
+};
 
 export const chainTypes = gql`
   type getUtxosType {
@@ -27,5 +41,10 @@ export const chainTypes = gql`
     id: String
     output_addresses: [String]
     tokens: Int
+  }
+
+  type LockUtxoType {
+    expires_at: String!
+    id: String!
   }
 `;
