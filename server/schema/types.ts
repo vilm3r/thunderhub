@@ -144,6 +144,24 @@ export const mutationTypes = gql`
       out_through: String
       target: Int
     ): bosRebalanceResultType
+    bosSwapOut(
+      auth: authType!
+      api_key: String
+      avoid: [String]
+      is_fast: Boolean
+      is_dry_run: Boolean
+      max_fee: Int
+      max_paths: Int
+      max_wait_blocks: Int
+      node: String
+      out_address: String
+      peer: String
+      recovery: String
+      socket: String
+      spend_address: String
+      spend_tokens: Int
+      tokens: Int!
+    ): Boolean
     payViaRoute(auth: authType!, route: String!, id: String!): Boolean
     createAddress(auth: authType!, nested: Boolean): String
     sendToAddress(
