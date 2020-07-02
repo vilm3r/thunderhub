@@ -36,7 +36,9 @@ export const generalTypes = gql`
 
 export const queryTypes = gql`
   type Query {
+    getBaseUris: baseUrisType
     getBaseNodes: [baseNodesType]!
+    getBaseOffers: [baseOfferType]!
     getAccountingReport(
       auth: authType!
       category: String

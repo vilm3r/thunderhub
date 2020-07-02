@@ -45,7 +45,9 @@ export type PermissionsType = {
 
 export type Query = {
   __typename?: 'Query';
+  getBaseUris?: Maybe<BaseUrisType>;
   getBaseNodes: Array<Maybe<BaseNodesType>>;
+  getBaseOffers: Array<Maybe<BaseOfferType>>;
   getAccountingReport: Scalars['String'];
   getVolumeHealth?: Maybe<ChannelsHealth>;
   getTimeHealth?: Maybe<ChannelsTimeHealth>;
@@ -1062,10 +1064,25 @@ export type BosRebalanceResultType = {
   result?: Maybe<BosResultType>;
 };
 
+export type BaseUrisType = {
+  __typename?: 'baseUrisType';
+  public_key: Scalars['String'];
+  clear: Scalars['String'];
+  tor: Scalars['String'];
+};
+
 export type BaseNodesType = {
   __typename?: 'baseNodesType';
-  _id?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  public_key?: Maybe<Scalars['String']>;
-  socket?: Maybe<Scalars['String']>;
+  _id: Scalars['String'];
+  name: Scalars['String'];
+  public_key: Scalars['String'];
+  socket: Scalars['String'];
+};
+
+export type BaseOfferType = {
+  __typename?: 'baseOfferType';
+  _id: Scalars['String'];
+  value: Scalars['Int'];
+  size: Scalars['Int'];
+  available: Scalars['Boolean'];
 };

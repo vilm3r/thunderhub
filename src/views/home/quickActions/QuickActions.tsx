@@ -17,6 +17,7 @@ import { DecodeCard } from './decode/Decode';
 import { SupportCard } from './donate/DonateCard';
 import { SupportBar } from './donate/DonateContent';
 import { OpenChannel } from './openChannel';
+import { GetInbound } from './inbound';
 
 const QuickCard = styled.div`
   background: ${cardColor};
@@ -59,6 +60,8 @@ export const QuickActions = () => {
         return 'Decode a Lightning Request';
       case 'open_channel':
         return 'Open a Channel';
+      case 'get_inbound':
+        return 'Buy Inbound Liquidity';
       default:
         return 'Quick Actions';
     }
@@ -72,10 +75,16 @@ export const QuickActions = () => {
         return <DecodeCard />;
       case 'open_channel':
         return <OpenChannel setOpenCard={setOpenCard} />;
+      case 'get_inbound':
+        return <GetInbound />;
       default:
         return (
           <QuickRow>
             <AdminSwitch>
+              <QuickCard onClick={() => setOpenCard('get_inbound')}>
+                <GitBranch size={24} />
+                <QuickTitle>Inbound</QuickTitle>
+              </QuickCard>
               <SupportCard callback={() => setOpenCard('support')} />
               <QuickCard onClick={() => setOpenCard('open_channel')}>
                 <GitBranch size={24} />
