@@ -9,11 +9,15 @@ import {
   mediaWidths,
   chartColors,
 } from 'src/styles/Themes';
-import { Card } from 'src/components/generic/Styled';
+import {
+  Card,
+  DarkSubTitle,
+  Separation,
+  Sub4Title,
+} from 'src/components/generic/Styled';
 import { useConfigState } from 'src/context/ConfigContext';
 import { usePriceState } from 'src/context/PriceContext';
 import { getPrice } from 'src/components/price/Price';
-import { ChevronRight } from 'react-feather';
 import { BaseOfferType } from 'src/graphql/types';
 import { OfferCard } from './OfferCard';
 
@@ -38,7 +42,7 @@ const Item = styled(animated.div)<TypeProps>`
   height: 60px;
   border-radius: 4px;
   margin: 8px;
-  padding: 8px;
+  padding: 8px 32px;
   background: ${backgroundColor};
   will-change: transform, opacity;
 
@@ -55,9 +59,8 @@ const Item = styled(animated.div)<TypeProps>`
 
 
   @media (${mediaWidths.mobile}) {
-    width: 110px;
-    font-size: 12px;
-    margin: 4px;
+    padding: 8px ;
+    flex-direction: column;
   }
 `;
 
@@ -74,9 +77,15 @@ const PriceLine = styled.div`
   justify-content: space-between;
 `;
 
-const IconPadding = styled.div`
-  padding-top: 2px;
-`;
+const renderInfo = () => (
+  <>
+    <Sub4Title>
+      Buy inbound channels to your node to increase the amount of sats you can
+      receive.
+    </Sub4Title>
+    <Separation />
+  </>
+);
 
 export const GetInbound = () => {
   const [open, set] = React.useState(false);
@@ -112,6 +121,17 @@ export const GetInbound = () => {
     return <LoadingCard />;
   }
 
+  if (!open) {
+    return (
+      <Card>
+        {renderInfo()}
+        <DarkSubTitle>
+          No inbound channel offers available right now.
+        </DarkSubTitle>
+      </Card>
+    );
+  }
+
   if (offer) {
     return (
       <Card>
@@ -122,6 +142,7 @@ export const GetInbound = () => {
 
   return (
     <Card>
+      {renderInfo()}
       <Container>
         {transitions.map(
           ({ item, key, props }) =>
@@ -132,7 +153,10 @@ export const GetInbound = () => {
                 $isAvailable={item.available}
                 onClick={() => offerSet(item)}
               >
-                <div>{`Size: ${format({ amount: item.size })}`}</div>
+                <div>{`Size: ${format({
+                  amount: item.size,
+                  breakNumber: true,
+                })}`}</div>
                 {!item.available ? (
                   <Tag>Out of Stock</Tag>
                 ) : (
@@ -140,15 +164,17 @@ export const GetInbound = () => {
                     {`Price: ${format({
                       amount: item.value,
                     })}`}
-                    <IconPadding>
-                      <ChevronRight size={18} />
-                    </IconPadding>
                   </PriceLine>
                 )}
               </Item>
             )
         )}
       </Container>
+      <Separation />
+      <Sub4Title>
+        These channels will be opened for a month and longer if they have
+        activity.
+      </Sub4Title>
     </Card>
   );
 };
