@@ -172,7 +172,7 @@ export const GetInbound = () => {
       </Container>
       <Separation />
       <Sub4Title>
-        These channels will be opened for a month and longer if they have
+        These channels will be opened for a month. *Longer if they have
         activity.
       </Sub4Title>
     </Card>

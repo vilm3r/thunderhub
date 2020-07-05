@@ -4,20 +4,12 @@ import { BaseOfferType } from 'src/graphql/types';
 import { useGetPeersQuery } from 'src/graphql/queries/__generated__/getPeers.generated';
 import { useAccountState } from 'src/context/AccountContext';
 import { LoadingCard } from 'src/components/loading/LoadingCard';
-import { useAddPeerMutation } from 'src/graphql/mutations/__generated__/addPeer.generated';
-import { toast } from 'react-toastify';
-import { getErrorContent } from 'src/utils/error';
-import { useGetNodeLazyQuery } from 'src/graphql/queries/__generated__/getNode.generated';
-import { getNodeLink, renderLine } from 'src/components/generic/helpers';
-import {
-  Separation,
-  Sub4Title,
-  DarkSubTitle,
-} from 'src/components/generic/Styled';
-import { SecureButton } from 'src/components/buttons/secureButton/SecureButton';
+import { renderLine } from 'src/components/generic/helpers';
+import { DarkSubTitle } from 'src/components/generic/Styled';
 import { useConfigState } from 'src/context/ConfigContext';
 import { usePriceState } from 'src/context/PriceContext';
 import { getPrice } from 'src/components/price/Price';
+import { CheckPeer } from './CheckPeer';
 
 type OfferProps = {
   offer: BaseOfferType;
@@ -39,90 +31,38 @@ export const OfferCard = ({ offer }: OfferProps) => {
     variables: { auth },
   });
 
-  const [
-    getNode,
-    { data: node, loading: nodeLoading, called },
-  ] = useGetNodeLazyQuery();
-
   React.useEffect(() => {
-    if (
-      !loading &&
-      data &&
-      data.getBaseUris &&
-      !peerLoading &&
-      peerData &&
-      peerData.getPeers
-    ) {
-      const isPeer =
-        peerData.getPeers
-          .map(p => p.public_key)
-          .indexOf(data.getBaseUris.public_key) >= 0;
+    if (loading || !data || !data.getBaseUris) return;
+    if (peerLoading || !peerData || !peerData.getPeers) return;
 
-      if (isPeer) {
-        setConnected(true);
-      } else {
-        getNode({
-          variables: { auth, publicKey: data.getBaseUris.public_key },
-        });
-      }
+    const peers = peerData.getPeers;
+    const { public_key } = data.getBaseUris;
+
+    const isPeer = peers.map(p => p.public_key).indexOf(public_key) >= 0;
+
+    if (isPeer) {
+      setConnected(true);
     }
-  }, [data, loading, peerLoading, peerData, auth, getNode]);
+  }, [data, loading, peerLoading, peerData, auth]);
 
-  const [addPeer, { loading: addLoading }] = useAddPeerMutation({
-    refetchQueries: ['GetPeers'],
-    onError: error => toast.error(getErrorContent(error)),
-    onCompleted: () => setConnected(true),
-  });
-
-  if (loading || peerLoading || nodeLoading) {
+  if (loading || peerLoading) {
     return <LoadingCard noCard={true} />;
   }
 
-  if (!data || !peerData || (called && !node?.getNode?.node?.capacity)) {
+  if (!data || !peerData) {
     return <DarkSubTitle>Offer is unavailable at the moment</DarkSubTitle>;
   }
 
-  if (!alreadyConnected && node) {
+  const { public_key, clear, tor } = data.getBaseUris;
+
+  if (!alreadyConnected) {
     return (
-      <>
-        {renderLine('Connect with', node.getNode.node?.alias)}
-        {renderLine(
-          'Node Public Key',
-          getNodeLink(data.getBaseUris.public_key)
-        )}
-        <Separation />
-        <Sub4Title>You need to connect first to this node.</Sub4Title>
-        {data.getBaseUris.clear && (
-          <SecureButton
-            withMargin={'16px 0 0'}
-            callback={addPeer}
-            loading={addLoading}
-            disabled={addLoading}
-            variables={{
-              publicKey: data.getBaseUris.public_key,
-              socket: data.getBaseUris.clear,
-            }}
-            fullWidth={true}
-          >
-            Connect
-          </SecureButton>
-        )}
-        {data.getBaseUris.tor && (
-          <SecureButton
-            withMargin={'16px 0 0'}
-            callback={addPeer}
-            loading={addLoading}
-            disabled={addLoading}
-            variables={{
-              publicKey: data.getBaseUris.public_key,
-              socket: data.getBaseUris.tor,
-            }}
-            fullWidth={true}
-          >
-            Connect TOR
-          </SecureButton>
-        )}
-      </>
+      <CheckPeer
+        setConnected={setConnected}
+        public_key={public_key}
+        clear={clear}
+        tor={tor}
+      />
     );
   }
 
