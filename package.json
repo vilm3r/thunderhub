@@ -13,6 +13,7 @@
     "start:compatible": "next start",
     "start:compatible:two": "next start -p 3001",
     "start:cookie": "sh ./scripts/initCookie.sh",
+    "start:sub": "ts-node --transpile-only --project tsconfig.sub.json subscriptions/index.ts",
     "lint": "eslint */**/*.{js,ts,tsx} --fix",
     "prettier": "prettier --write **/*.{ts,tsx,js,css,html}",
     "release": "standard-version",
@@ -132,6 +133,7 @@
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
     "standard-version": "^8.0.0",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   },
   "husky": {
