@@ -2,7 +2,7 @@ import { createLogger, format, transports } from 'winston';
 import getConfig from 'next/config';
 
 const { serverRuntimeConfig = {} } = getConfig() || {};
-const { logLevel } = serverRuntimeConfig;
+const { logLevel = 'debug' } = serverRuntimeConfig;
 
 const combinedFormat = format.combine(
   format.label({ label: 'THUB' }),

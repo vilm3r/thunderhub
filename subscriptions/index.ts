@@ -1,36 +1,55 @@
 import { ApolloServer, PubSub, gql } from 'apollo-server';
 import * as dotenv from 'dotenv';
-import { authenticatedLndGrpc } from 'ln-service';
+import {
+  authenticatedLndGrpc,
+  subscribeToGraph,
+  subscribeToChannels,
+} from 'ln-service';
+import { logger } from '../server/helpers/logger';
 
 const pubsub = new PubSub();
 
 dotenv.config({ path: '.env.local' });
 
-const POST_ADDED = 'POST_ADDED';
-
-setInterval(function () {
-  pubsub.publish(POST_ADDED, { postAdded: new Date().toISOString() });
-}, 3000);
+const NODE_UPDATED = 'NODE_UPDATED';
+const CHANNEL_STATUS_CHANGE = 'CHANNEL_STATUS_CHANGE';
 
 const typeDefs = gql`
   type Query {
-    posts: String
+    hello: String
   }
   type Subscription {
-    postAdded: String
+    nodeUpdated: NodeUpdate
+    channelStatusChange: ChannelStatusChange
+  }
+
+  type NodeUpdate {
+    alias: String!
+    color: String!
+    public_key: String!
+    sockets: [String]
+    updated_at: String!
+  }
+
+  type ChannelStatusChange {
+    is_active: Boolean!
+    transaction_id: String!
+    transaction_vout: Int!
   }
 `;
 
 const resolvers = {
   Query: {
-    posts: () => {
-      return 'Hello';
+    hello: () => {
+      return 'world';
     },
   },
   Subscription: {
-    postAdded: {
-      // Additional event labels can be passed to asyncIterator creation
-      subscribe: () => pubsub.asyncIterator([POST_ADDED]),
+    nodeUpdated: {
+      subscribe: () => pubsub.asyncIterator([NODE_UPDATED]),
+    },
+    channelStatusChange: {
+      subscribe: () => pubsub.asyncIterator([CHANNEL_STATUS_CHANGE]),
     },
   },
 };
@@ -42,6 +61,28 @@ const main = async () => {
     socket: process.env.LND_SOCKET,
   });
 
+  const sub = subscribeToGraph({ lnd });
+  const subChannels = subscribeToChannels({ lnd });
+
+  // sub.on('channel_closed', channel => {
+  //   logger.debug(channel);
+  //   pubsub.publish(POST_ADDED, { postAdded: new Date().toISOString() });
+  // });
+
+  sub.on('node_updated', node => {
+    logger.info(node);
+    pubsub.publish(NODE_UPDATED, { nodeUpdated: node });
+  });
+
+  subChannels.on('channel_active_changed', channel => {
+    logger.info(channel);
+    pubsub.publish(CHANNEL_STATUS_CHANGE, { channelStatusChange: channel });
+  });
+
+  const cancelSubscriptions = () => {
+    sub.removeAllListeners();
+  };
+
   const server = new ApolloServer({
     resolvers,
     typeDefs,
@@ -52,6 +93,15 @@ const main = async () => {
     console.log(`Server available on ${url}`);
     console.log(`Websocket available on ${subscriptionsUrl}`);
   });
+
+  return () => {
+    logger.debug('Closing subscriptions');
+    cancelSubscriptions();
+  };
+  // .catch(cancelSubscriptions)
+  // .finally(() => {
+  //   cancelSubscriptions();
+  // });
 };
 
 main();
