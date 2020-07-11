@@ -1,20 +1,13 @@
-import React from 'react';
-import { VictoryBar, VictoryChart, VictoryAxis, VictoryGroup } from 'victory';
-import { useConfigState } from '../../../../context/ConfigContext';
-import {
-  chartAxisColor,
-  chartGridColor,
-  flowBarColor,
-  flowBarColor2,
-} from '../../../../styles/Themes';
-import { getPrice } from '../../../../components/price/Price';
-import { usePriceState } from '../../../../context/PriceContext';
+import React, { useMemo, useCallback } from 'react';
+import { Chart } from 'react-charts';
+import { subHours, subDays } from 'date-fns';
+import { chartColors } from '../../../../styles/Themes';
 
 interface Props {
   isTime: string;
   isType: string;
-  parsedData: {}[];
-  parsedData2: {}[];
+  parsedData: any[];
+  parsedData2: any[];
 }
 
 export const FlowReport = ({
@@ -23,82 +16,91 @@ export const FlowReport = ({
   parsedData,
   parsedData2,
 }: Props) => {
-  const { theme, currency, displayValues } = useConfigState();
-  const priceContext = usePriceState();
-  const format = getPrice(currency, displayValues, priceContext);
+  const getDate = (period: number) => {
+    if (isTime === 'day') {
+      return subHours(new Date(), period);
+    }
+    return subDays(new Date(), period);
+  };
 
-  let domain = 24;
+  const getFirstDate = useCallback(() => {
+    switch (isTime) {
+      case 'day':
+        return subHours(new Date(), 25);
+      case 'week':
+        return subDays(new Date(), 8);
+      case 'month':
+        return subDays(new Date(), 151);
+      default:
+        break;
+    }
+  }, [isTime]);
+
+  const mapped = parsedData.map(p => [getDate(p.period), p[isType]]);
+  const mapped2 = parsedData2.map(p => [getDate(p.period), -1 * p[isType]]);
+
+  const data = useMemo(
+    () => [
+      { label: 'Invoices', data: [[getFirstDate(), 0], ...mapped] },
+      { label: 'Payments', data: [[getFirstDate(), 0], ...mapped2] },
+    ],
+    [mapped, mapped2, getFirstDate]
+  );
+
+  const series = React.useMemo(
+    () => ({
+      type: 'bar',
+    }),
+    []
+  );
+
+  const axes = React.useMemo(
+    () => [
+      { primary: true, type: 'time', position: 'bottom', show: false },
+      {
+        type: 'linear',
+        position: 'left',
+        show: false,
+      },
+    ],
+    []
+  );
+
   let barWidth = 3;
   if (isTime === 'week') {
-    domain = 7;
     barWidth = 15;
-  } else if (isTime === 'month') {
-    domain = 30;
-    barWidth = 3;
   }
 
+  const getSeriesStyle = React.useCallback(
+    series => {
+      if (series.index === 0) {
+        return {
+          color: chartColors.darkyellow,
+          width: `${barWidth}px`,
+        };
+      }
+      return {
+        color: chartColors.orange2,
+        width: `${barWidth}px`,
+      };
+    },
+    [barWidth]
+  );
+
   return (
-    <VictoryChart
-      height={100}
-      domainPadding={50}
-      padding={{
-        top: 10,
-        left: isType === 'tokens' ? 80 : 50,
-        right: 50,
-        bottom: 10,
+    <div
+      style={{
+        width: '100%',
+        height: '300px',
       }}
     >
-      <VictoryAxis
-        domain={[0, domain]}
-        tickFormat={() => ''}
-        style={{
-          axis: { stroke: chartGridColor[theme] },
-        }}
+      <Chart
+        data={data}
+        series={series}
+        axes={axes}
+        tooltip
+        getSeriesStyle={getSeriesStyle}
       />
-      <VictoryAxis
-        dependentAxis
-        style={{
-          tickLabels: {
-            fill: chartAxisColor[theme],
-            fontSize: 8,
-          },
-          grid: { stroke: chartGridColor[theme] },
-          axis: { stroke: 'transparent' },
-        }}
-        tickFormat={a =>
-          isType === 'tokens' ? format({ amount: a, breakNumber: true }) : a
-        }
-      />
-      <VictoryGroup offset={barWidth}>
-        <VictoryBar
-          data={parsedData}
-          x="period"
-          y={isType}
-          style={{
-            data: {
-              fill: flowBarColor[theme],
-              width: barWidth,
-            },
-            labels: {
-              fontSize: '12px',
-            },
-          }}
-        />
-        <VictoryBar
-          data={parsedData2}
-          x="period"
-          y={isType}
-          style={{
-            data: {
-              fill: flowBarColor2[theme],
-              width: barWidth,
-            },
-            labels: {
-              fontSize: '12px',
-            },
-          }}
-        />
-      </VictoryGroup>
-    </VictoryChart>
+    </div>
   );
 };
