@@ -13,6 +13,7 @@ module.exports = {
   compiler: {
     styledComponents: true,
   },
+  distDir: '../../.next',
   publicRuntimeConfig: {
     mempoolUrl: process.env.MEMPOOL_URL || 'https://mempool.space',
     disable2FA: process.env.DISABLE_TWOFA === 'true',

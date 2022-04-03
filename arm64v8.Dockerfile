@@ -1,16 +1,16 @@
 # ---------------
 # Install Dependencies
 # ---------------
-FROM arm64v8/node:14.15-alpine as deps
+FROM arm64v8/node:14.16-slim as deps
 
 WORKDIR /app
 
 # Install dependencies neccesary for node-gyp on node alpine
-RUN apk add --update --no-cache \
-    libc6-compat \
-    python \
-    make \
-    g++
+# RUN apk add --update --no-cache \
+#     libc6-compat \
+#     python \
+#     make \
+#     g++
 
 
 # Install app dependencies
@@ -41,7 +41,7 @@ RUN npm prune --production
 # ---------------
 # Release App
 # ---------------
-FROM arm64v8/node:14.15-alpine
+FROM arm64v8/node:14.16-slim
 
 WORKDIR /app
 

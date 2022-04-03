@@ -10,7 +10,6 @@ module.exports = {
     'plugin:prettier/recommended',
     'prettier',
   ],
-  root: true,
   env: {
     node: true,
     jest: true,
@@ -22,5 +21,10 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
+  },
+  settings: {
+    next: {
+      rootDir: 'src/client/',
+    },
   },
 };
