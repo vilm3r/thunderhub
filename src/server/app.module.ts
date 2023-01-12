@@ -17,6 +17,7 @@ import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
 import { WsModule } from './modules/ws/ws.module';
 import { SubModule } from './modules/sub/sub.module';
+import { PeerSwapModule } from './modules/peerswap/peerswap.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -49,6 +50,7 @@ export type JwtObjectType = {
     FilesModule,
     AccountsModule,
     FetchModule,
+    PeerSwapModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,

@@ -90,6 +90,11 @@ export class BalancesResolver {
       commit,
     };
   }
+
+  @ResolveField()
+  async liquid(@CurrentUser() { id }: UserId) {
+    return await this.nodeService.getLiquidBalance(id);
+  }
 }
 
 @Resolver()

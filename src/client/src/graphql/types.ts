@@ -40,6 +40,7 @@ export type AuthResponse = {
 export type Balances = {
   __typename?: 'Balances';
   lightning: LightningBalance;
+  liquid?: Maybe<Scalars['String']>;
   onchain: OnChainBalance;
 };
 
@@ -384,6 +385,21 @@ export type GetPaymentsType = {
   payments: Array<PaymentType>;
 };
 
+export type GetPeerSwapPeersType = {
+  __typename?: 'GetPeerSwapPeersType';
+  peers: Array<PeerSwapPeerType>;
+};
+
+export type GetPeerSwapSwapType = {
+  __typename?: 'GetPeerSwapSwapType';
+  swap: PeerSwapSwapType;
+};
+
+export type GetPeerSwapSwapsType = {
+  __typename?: 'GetPeerSwapSwapsType';
+  swaps: Array<PeerSwapSwapType>;
+};
+
 export type Hops = {
   __typename?: 'Hops';
   channel: Scalars['String'];
@@ -494,6 +510,7 @@ export type Mutation = {
   createBoltzReverseSwap: CreateBoltzReverseSwapType;
   createInvoice: CreateInvoice;
   createMacaroon: CreateMacaroon;
+  createPeerSwapSwap: GetPeerSwapSwapType;
   createThunderPoints: Scalars['Boolean'];
   fetchLnUrl: LnUrlRequest;
   getAuthToken: Scalars['Boolean'];
@@ -558,7 +575,7 @@ export type MutationCloseChannelArgs = {
 };
 
 export type MutationCreateAddressArgs = {
-  type?: InputMaybe<Scalars['String']>;
+  type?: Scalars['String'];
 };
 
 export type MutationCreateBaseInvoiceArgs = {
@@ -579,6 +596,13 @@ export type MutationCreateInvoiceArgs = {
 
 export type MutationCreateMacaroonArgs = {
   permissions: NetworkInfoInput;
+};
+
+export type MutationCreatePeerSwapSwapArgs = {
+  amount: Scalars['Float'];
+  asset: Scalars['String'];
+  channelId: Scalars['String'];
+  type: Scalars['String'];
 };
 
 export type MutationCreateThunderPointsArgs = {
@@ -875,6 +899,52 @@ export type Peer = {
   tokens_sent: Scalars['Float'];
 };
 
+export type PeerSwapChannelType = {
+  __typename?: 'PeerSwapChannelType';
+  active: Scalars['Boolean'];
+  channelId: Scalars['String'];
+  localBalance: Scalars['String'];
+  localPercentage: Scalars['String'];
+  remoteBalance: Scalars['String'];
+};
+
+export type PeerSwapPeerType = {
+  __typename?: 'PeerSwapPeerType';
+  asReceiver: PeerSwapStatsType;
+  asSender: PeerSwapStatsType;
+  channels: Array<PeerSwapChannelType>;
+  nodeId: Scalars['String'];
+  paidFee: Scalars['String'];
+  supportedAssets: Array<Scalars['String']>;
+  swapsAllowed: Scalars['Boolean'];
+};
+
+export type PeerSwapStatsType = {
+  __typename?: 'PeerSwapStatsType';
+  satsIn: Scalars['String'];
+  satsOut: Scalars['String'];
+  swapsIn: Scalars['String'];
+  swapsOut: Scalars['String'];
+};
+
+export type PeerSwapSwapType = {
+  __typename?: 'PeerSwapSwapType';
+  amount: Scalars['String'];
+  asset: Scalars['String'];
+  cancelMessage: Scalars['String'];
+  channelId: Scalars['String'];
+  claimTxId: Scalars['String'];
+  createdAt: Scalars['String'];
+  id: Scalars['String'];
+  initiatorNodeId: Scalars['String'];
+  lndChanId: Scalars['String'];
+  openingTxId: Scalars['String'];
+  peerNodeId: Scalars['String'];
+  role: Scalars['String'];
+  state: Scalars['String'];
+  type: Scalars['String'];
+};
+
 export type PendingChannel = {
   __typename?: 'PendingChannel';
   close_transaction_id?: Maybe<Scalars['String']>;
@@ -966,6 +1036,8 @@ export type Query = {
   getNodeInfo: NodeInfo;
   getNodeSocialInfo: LightningNodeSocialInfo;
   getPayments: GetPaymentsType;
+  getPeerSwapPeers: GetPeerSwapPeersType;
+  getPeerSwapSwaps: GetPeerSwapSwapsType;
   getPeers: Array<Peer>;
   getPendingChannels: Array<PendingChannel>;
   getServerAccounts: Array<ServerAccount>;
@@ -1073,6 +1145,7 @@ export type ServerAccount = {
   id: Scalars['String'];
   loggedIn: Scalars['Boolean'];
   name: Scalars['String'];
+  peerSwapEnabled: Scalars['Boolean'];
   twofaEnabled: Scalars['Boolean'];
   type: Scalars['String'];
 };
