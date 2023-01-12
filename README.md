@@ -1,3 +1,3 @@
-# **ThunderHub - Lightning Node Manager**
+# **This is a fork of Thunderhub with Peerswap support added**
 
-**Documentation has moved!** Find the documentation [here](http://docs.thunderhub.io/).
+For the originating project go [here](https://github.com/apotdevin/thunderhub).
