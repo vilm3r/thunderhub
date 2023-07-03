@@ -4,7 +4,7 @@ import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type GetChannelsQueryVariables = Types.Exact<{
-  active?: Types.InputMaybe<Types.Scalars['Boolean']>;
+  active?: Types.InputMaybe<Types.Scalars['Boolean']['input']>;
 }>;
 
 export type GetChannelsQuery = {
@@ -70,13 +70,14 @@ export type GetChannelsQuery = {
 };
 
 export type GetChannelsWithPeersQueryVariables = Types.Exact<{
-  active?: Types.InputMaybe<Types.Scalars['Boolean']>;
+  active?: Types.InputMaybe<Types.Scalars['Boolean']['input']>;
 }>;
 
 export type GetChannelsWithPeersQuery = {
   __typename?: 'Query';
   getChannels: Array<{
     __typename?: 'Channel';
+    id: string;
     partner_public_key: string;
     partner_node_info: {
       __typename?: 'Node';
@@ -195,6 +196,7 @@ export type GetChannelsQueryResult = Apollo.QueryResult<
 export const GetChannelsWithPeersDocument = gql`
   query GetChannelsWithPeers($active: Boolean) {
     getChannels(active: $active) {
+      id
       partner_public_key
       partner_node_info {
         node {

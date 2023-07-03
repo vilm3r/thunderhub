@@ -4,10 +4,10 @@ import { gql } from '@apollo/client';
 import * as Apollo from '@apollo/client';
 const defaultOptions = {} as const;
 export type CreatePeerSwapSwapMutationVariables = Types.Exact<{
-  amount: Types.Scalars['Float'];
-  asset: Types.Scalars['String'];
-  channelId: Types.Scalars['String'];
-  type: Types.Scalars['String'];
+  amount: Types.Scalars['Float']['input'];
+  asset: Types.Scalars['String']['input'];
+  channelId: Types.Scalars['String']['input'];
+  type: Types.Scalars['String']['input'];
 }>;
 
 export type CreatePeerSwapSwapMutation = {
